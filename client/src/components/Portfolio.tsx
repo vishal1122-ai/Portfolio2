@@ -27,7 +27,7 @@ export default function Portfolio() {
       <About />
       <PortfolioSection />
       <Services />
-      <Testimonials />
+      {/* <Testimonials /> */}
       <Contact />
       <Footer />
       <ChatModal />
