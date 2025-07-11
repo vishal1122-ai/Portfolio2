@@ -56,14 +56,14 @@ export default function About() {
     return () => clearTimeout(timer);
   }, []);
 
-  const skills = [
-    "ReactJS",
-    "Tailwind CSS",
-    "GSAP",
-    "Framer Motion",
-    "Three.js",
-    "WebGL",
-  ];
+  // const skills = [
+  //   "ReactJS",
+  //   "Tailwind CSS",
+  //   "GSAP",
+  //   "Framer Motion",
+  //   "Three.js",
+  //   "WebGL",
+  // ];
 
   return (
     <section id="about" className="py-20 px-6">
@@ -87,14 +87,30 @@ export default function About() {
             </p> */}
 
             <div className="flex flex-wrap gap-3">
-              {skills.map((skill) => (
-                <span
-                  key={skill}
-                  className="skill-tag px-4 py-2 bg-electric/10 text-electric rounded-full text-sm font-medium"
-                >
-                  {skill}
-                </span>
-              ))}
+              <span
+                className="skill-tag px-4 py-2 bg-electric/10 text-electric rounded-full text-sm font-medium"
+                title="React.js, Tailwind CSS, GSAP, Framer Motion, Three.js, WebGL"
+              >
+                Frontend
+              </span>
+              <span
+                className="skill-tag px-4 py-2 bg-electric/10 text-electric rounded-full text-sm font-medium"
+                title="Node.js, Express, MongoDB, PostgreSQL, REST APIs, GraphQL"
+              >
+                Backend
+              </span>
+              <span
+                className="skill-tag px-4 py-2 bg-electric/10 text-electric rounded-full text-sm font-medium"
+                title="OpenAI API, LangChain, Prompt Engineering, Python, Scikit-learn"
+              >
+                AI/ML
+              </span>
+              <span
+                className="skill-tag px-4 py-2 bg-electric/10 text-electric rounded-full text-sm font-medium"
+                title="Docker, AWS, CI/CD, Vercel, GitHub Actions"
+              >
+                Cloud & DevOps
+              </span>
             </div>
           </div>
 
