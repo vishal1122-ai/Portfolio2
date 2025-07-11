@@ -70,10 +70,10 @@ export default function Hero() {
         </div>
       </div>
 
-      {/* Scroll Indicator */}
+      {/* Scroll Indicator
       <div className="absolute bottom-8 left-8 animate-bounce">
         <i className="fas fa-chevron-down text-electric text-xl"></i>
-      </div>
+      </div> */}
     </section>
   );
 }
