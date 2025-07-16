@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import scriptSentryThumbnail from "../assets/ScriptSentry_Thumbnail.png";
 
 interface Project {
   id: number;
@@ -18,7 +19,7 @@ export default function PortfolioSection() {
       title: "ScriptSentry – AI Contract Analyzer",
       description:
         "An AI-powered legal contract analyzer that identifies risky clauses, scores document safety, and offers red-flag summaries for freelancers and small businesses.",
-      image: "/assets/ScriptSentry_Thumbnail.png", // Make sure this image exists in public/assets
+      image: scriptSentryThumbnail, // Make sure this image exists in public/assets
       technologies: [
         "React",
         "Node.js",

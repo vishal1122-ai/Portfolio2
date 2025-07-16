@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import profileImage from "../assets/whatsapp_profile.jpeg";
 
 export default function About() {
   useEffect(() => {
@@ -117,7 +118,7 @@ export default function About() {
           <div className="relative about-image">
             {/* Use public folder path for the image */}
             <img
-              src="/assets/whatsapp_profile.jpeg"
+              src={profileImage}
               alt="Venkata Vishal Sitamraju"
               className="rounded-2xl shadow-2xl w-full h-auto animate-float"
             />
