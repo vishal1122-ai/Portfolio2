@@ -147,3 +147,8 @@ storybook-static
 
 # Local development
 .local/
+
+node_modules
+dist
+.env
+.DS_Store
