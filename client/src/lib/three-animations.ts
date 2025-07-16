@@ -4,26 +4,37 @@ declare global {
   }
 }
 
-export type AnimationType = 'neural' | 'liquid' | 'matrix' | 'geometric';
+export type AnimationType = "neural" | "liquid" | "matrix" | "geometric";
 
 export class ThreeAnimationManager {
   private scene: any;
   private camera: any;
   private renderer: any;
   private animationObjects: any = {};
-  private currentAnimation: AnimationType = 'neural';
+  private currentAnimation: AnimationType = "neural";
+  private isPaused: boolean = false;
+  private animationFrameId: number | null = null;
+
   private isDarkMode: boolean = true;
 
   constructor(container: HTMLElement) {
-    if (typeof window === 'undefined' || !window.THREE) return;
+    if (typeof window === "undefined" || !window.THREE) return;
 
     const width = container.offsetWidth;
     const height = container.offsetHeight;
 
     // Scene setup
     this.scene = new window.THREE.Scene();
-    this.camera = new window.THREE.PerspectiveCamera(75, width / height, 0.1, 1000);
-    this.renderer = new window.THREE.WebGLRenderer({ alpha: true, antialias: true });
+    this.camera = new window.THREE.PerspectiveCamera(
+      75,
+      width / height,
+      0.1,
+      1000
+    );
+    this.renderer = new window.THREE.WebGLRenderer({
+      alpha: true,
+      antialias: true,
+    });
     this.renderer.setSize(width, height);
     this.renderer.setClearColor(0x000000, 0);
     container.appendChild(this.renderer.domElement);
@@ -31,7 +42,7 @@ export class ThreeAnimationManager {
     this.camera.position.z = 5;
 
     // Handle resize
-    window.addEventListener('resize', () => {
+    window.addEventListener("resize", () => {
       const newWidth = container.offsetWidth;
       const newHeight = container.offsetHeight;
       this.camera.aspect = newWidth / newHeight;
@@ -53,19 +64,33 @@ export class ThreeAnimationManager {
     this.clearScene();
 
     switch (type) {
-      case 'neural':
+      case "neural":
         this.createNeuralNetwork();
         break;
-      case 'liquid':
+      case "liquid":
         this.createLiquidWave();
         break;
-      case 'matrix':
+      case "matrix":
         this.createMatrixRain();
         break;
-      case 'geometric':
+      case "geometric":
         this.createGeometricTessellation();
         break;
     }
+  }
+
+  public pause() {
+    this.isPaused = true;
+    if (this.animationFrameId !== null) {
+      cancelAnimationFrame(this.animationFrameId);
+      this.animationFrameId = null;
+    }
+  }
+
+  public resume() {
+    if (!this.isPaused) return;
+    this.isPaused = false;
+    this.animate();
   }
 
   private clearScene() {
@@ -87,10 +112,10 @@ export class ThreeAnimationManager {
     if (!window.THREE) return;
 
     const nodeGeometry = new window.THREE.SphereGeometry(0.05, 16, 16);
-    const nodeMaterial = new window.THREE.MeshBasicMaterial({ 
+    const nodeMaterial = new window.THREE.MeshBasicMaterial({
       color: this.isDarkMode ? 0x00d4ff : 0x8b5cf6,
       transparent: true,
-      opacity: 0.8
+      opacity: 0.8,
     });
 
     const nodes: any[] = [];
@@ -104,7 +129,10 @@ export class ThreeAnimationManager {
         (Math.random() - 0.5) * 6,
         (Math.random() - 0.5) * 4
       );
-      node.userData = { originalY: node.position.y, speed: Math.random() * 0.02 + 0.01 };
+      node.userData = {
+        originalY: node.position.y,
+        speed: Math.random() * 0.02 + 0.01,
+      };
       nodes.push(node);
       this.scene.add(node);
     }
@@ -116,12 +144,12 @@ export class ThreeAnimationManager {
         if (distance < 2) {
           const lineGeometry = new window.THREE.BufferGeometry().setFromPoints([
             nodes[i].position.clone(),
-            nodes[j].position.clone()
+            nodes[j].position.clone(),
           ]);
-          const lineMaterial = new window.THREE.LineBasicMaterial({ 
+          const lineMaterial = new window.THREE.LineBasicMaterial({
             color: this.isDarkMode ? 0x00d4ff : 0x8b5cf6,
             transparent: true,
-            opacity: 0.3
+            opacity: 0.3,
           });
           const line = new window.THREE.Line(lineGeometry, lineMaterial);
           connections.push({ line, nodeA: nodes[i], nodeB: nodes[j] });
@@ -140,8 +168,12 @@ export class ThreeAnimationManager {
     const material = new window.THREE.ShaderMaterial({
       uniforms: {
         time: { value: 0 },
-        color1: { value: new window.THREE.Color(this.isDarkMode ? 0x00d4ff : 0x8b5cf6) },
-        color2: { value: new window.THREE.Color(this.isDarkMode ? 0x8b5cf6 : 0x00d4ff) }
+        color1: {
+          value: new window.THREE.Color(this.isDarkMode ? 0x00d4ff : 0x8b5cf6),
+        },
+        color2: {
+          value: new window.THREE.Color(this.isDarkMode ? 0x8b5cf6 : 0x00d4ff),
+        },
       },
       vertexShader: `
         uniform float time;
@@ -173,7 +205,7 @@ export class ThreeAnimationManager {
         }
       `,
       transparent: true,
-      side: window.THREE.DoubleSide
+      side: window.THREE.DoubleSide,
     });
 
     const mesh = new window.THREE.Mesh(geometry, material);
@@ -185,10 +217,10 @@ export class ThreeAnimationManager {
     if (!window.THREE) return;
 
     const geometry = new window.THREE.BoxGeometry(0.1, 0.1, 0.1);
-    const material = new window.THREE.MeshBasicMaterial({ 
+    const material = new window.THREE.MeshBasicMaterial({
       color: this.isDarkMode ? 0x00d4ff : 0x8b5cf6,
       transparent: true,
-      opacity: 0.1
+      opacity: 0.1,
     });
 
     const cubes: any[] = [];
@@ -215,11 +247,11 @@ export class ThreeAnimationManager {
     if (!window.THREE) return;
 
     const geometry = new window.THREE.ConeGeometry(0.2, 0.4, 3);
-    const material = new window.THREE.MeshBasicMaterial({ 
+    const material = new window.THREE.MeshBasicMaterial({
       color: this.isDarkMode ? 0x00d4ff : 0x8b5cf6,
       transparent: true,
       opacity: 0.6,
-      wireframe: true
+      wireframe: true,
     });
 
     const shapes: any[] = [];
@@ -230,12 +262,12 @@ export class ThreeAnimationManager {
         (Math.random() - 0.5) * 5,
         (Math.random() - 0.5) * 3
       );
-      shape.userData = { 
-        rotationSpeed: { 
+      shape.userData = {
+        rotationSpeed: {
           x: (Math.random() - 0.5) * 0.02,
           y: (Math.random() - 0.5) * 0.02,
-          z: (Math.random() - 0.5) * 0.02
-        }
+          z: (Math.random() - 0.5) * 0.02,
+        },
       };
       shapes.push(shape);
       this.scene.add(shape);
@@ -245,28 +277,35 @@ export class ThreeAnimationManager {
   }
 
   private animate = () => {
-    requestAnimationFrame(this.animate);
+    if (this.isPaused) return;
 
     const time = Date.now() * 0.001;
 
-    if (this.currentAnimation === 'neural' && this.animationObjects.nodes) {
+    // Your existing animation logic here...
+    if (this.currentAnimation === "neural" && this.animationObjects.nodes) {
       this.animationObjects.nodes.forEach((node: any) => {
-        node.position.y = node.userData.originalY + Math.sin(time * node.userData.speed) * 0.3;
-        node.material.opacity = 0.5 + Math.sin(time * 2 + node.position.x) * 0.3;
+        node.position.y =
+          node.userData.originalY + Math.sin(time * node.userData.speed) * 0.3;
+        node.material.opacity =
+          0.5 + Math.sin(time * 2 + node.position.x) * 0.3;
       });
 
       this.animationObjects.connections.forEach((connection: any) => {
-        const points = [connection.nodeA.position.clone(), connection.nodeB.position.clone()];
+        const points = [
+          connection.nodeA.position.clone(),
+          connection.nodeB.position.clone(),
+        ];
         connection.line.geometry.setFromPoints(points);
-        connection.line.material.opacity = 0.1 + Math.sin(time + connection.nodeA.position.x) * 0.2;
+        connection.line.material.opacity =
+          0.1 + Math.sin(time + connection.nodeA.position.x) * 0.2;
       });
     }
 
-    if (this.currentAnimation === 'liquid' && this.animationObjects.material) {
+    if (this.currentAnimation === "liquid" && this.animationObjects.material) {
       this.animationObjects.material.uniforms.time.value = time;
     }
 
-    if (this.currentAnimation === 'matrix' && this.animationObjects.cubes) {
+    if (this.currentAnimation === "matrix" && this.animationObjects.cubes) {
       this.animationObjects.cubes.forEach((cube: any) => {
         cube.rotation.x += 0.01;
         cube.rotation.y += 0.01;
@@ -274,7 +313,7 @@ export class ThreeAnimationManager {
       });
     }
 
-    if (this.currentAnimation === 'geometric' && this.animationObjects.shapes) {
+    if (this.currentAnimation === "geometric" && this.animationObjects.shapes) {
       this.animationObjects.shapes.forEach((shape: any) => {
         shape.rotation.x += shape.userData.rotationSpeed.x;
         shape.rotation.y += shape.userData.rotationSpeed.y;
@@ -284,6 +323,9 @@ export class ThreeAnimationManager {
     }
 
     this.renderer.render(this.scene, this.camera);
+
+    // Save frame ID so we can cancel it on pause
+    this.animationFrameId = requestAnimationFrame(this.animate);
   };
 
   dispose() {

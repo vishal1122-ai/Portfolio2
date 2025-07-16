@@ -147,6 +147,12 @@
     z-index: 9999;
     mix-blend-mode: difference;
     transition: transform 0.1s ease;
+    will-change: transform;
+    transform: translate3d(0, 0, 0); /* default */
+    pointer-events: none;
+    position: fixed;
+    transition: transform 0.1s ease;
+    z-index: 9999;
   }
 
   .custom-cursor.hover {
@@ -197,6 +203,7 @@
 
   .portfolio-card {
     perspective: 1000px;
+    will-change: transform;
   }
 
   .portfolio-card-inner {
@@ -204,28 +211,40 @@
     width: 100%;
     height: 100%;
     text-align: center;
-    transition: transform 0.6s;
+    transition: transform 0.5s ease-out;
     transform-style: preserve-3d;
+    will-change: transform;
+    backface-visibility: hidden; /* ✅ can help reduce flicker on some GPUs */
   }
 
   .portfolio-card:hover .portfolio-card-inner {
     transform: rotateY(180deg);
   }
-
   .portfolio-card-front,
   .portfolio-card-back {
     position: absolute;
     width: 100%;
     height: 100%;
-    backface-visibility: hidden;
     border-radius: 1rem;
     overflow: hidden;
+    backface-visibility: hidden;
+    top: 0;
+    left: 0;
+    will-change: transform, opacity;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
   }
 
   .portfolio-card-back {
     transform: rotateY(180deg);
   }
 
+  @media (prefers-reduced-motion: reduce) {
+    .portfolio-card-inner {
+      transition: none !important;
+    }
+  }
   .text-reveal {
     /* background-color: var(--primary); */
     color: #3b82f6;

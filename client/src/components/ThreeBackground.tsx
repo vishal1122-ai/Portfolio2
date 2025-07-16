@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTheme } from "@/hooks/useTheme";
 import {
   ThreeAnimationManager,
@@ -17,42 +17,61 @@ export default function ThreeBackground({
   const containerRef = useRef<HTMLDivElement>(null);
   const animationManagerRef = useRef<ThreeAnimationManager | null>(null);
   const { theme } = useTheme();
+  const [isInView, setIsInView] = useState(true);
+  const [hasInitialized, setHasInitialized] = useState(false);
 
+  // Initialize Three.js and observer
   useEffect(() => {
-    if (containerRef.current && !animationManagerRef.current) {
-      animationManagerRef.current = new ThreeAnimationManager(
-        containerRef.current
-      );
-    }
+    const container = containerRef.current;
+    if (!container || animationManagerRef.current) return;
+
+    animationManagerRef.current = new ThreeAnimationManager(container);
+    setHasInitialized(true);
+
+    const observer = new IntersectionObserver(
+      ([entry]) => setIsInView(entry.isIntersecting),
+      { threshold: 0.1 }
+    );
+    observer.observe(container);
 
     return () => {
-      if (animationManagerRef.current) {
-        animationManagerRef.current.dispose();
-        animationManagerRef.current = null;
-      }
+      observer.disconnect();
+      animationManagerRef.current?.dispose();
+      animationManagerRef.current = null;
     };
   }, []);
 
+  // Theme sync
   useEffect(() => {
-    if (animationManagerRef.current) {
-      animationManagerRef.current.setTheme(theme === "dark");
-    }
-  }, [theme]);
+    if (!hasInitialized) return;
+    animationManagerRef.current?.setTheme(theme === "dark");
+  }, [theme, hasInitialized]);
 
+  // Switch animation
   useEffect(() => {
-    if (animationManagerRef.current) {
-      animationManagerRef.current.switchAnimation(currentAnimation);
+    if (!hasInitialized) return;
+    animationManagerRef.current?.switchAnimation(currentAnimation);
+  }, [currentAnimation, hasInitialized]);
+
+  // Pause/resume rendering
+  useEffect(() => {
+    if (!hasInitialized || !animationManagerRef.current) return;
+
+    if (isInView) {
+      animationManagerRef.current.resume();
+    } else {
+      animationManagerRef.current.pause();
     }
-  }, [currentAnimation]);
+  }, [isInView, hasInitialized]);
 
   return (
     <>
       <div ref={containerRef} className="absolute inset-0 z-0" />
 
-      {/* Matrix Rain CSS Effect */}
-      <MatrixRain visible={currentAnimation === "matrix"} />
+      {/* Matrix Rain */}
+      <MatrixRain visible={currentAnimation === "matrix" && isInView} />
 
-      {/* Morphing Blobs */}
+      {/* Blobs */}
       <div className="morphing-blob absolute top-1/4 left-1/4 w-96 h-96 rounded-full"></div>
       <div
         className="morphing-blob absolute bottom-1/4 right-1/4 w-64 h-64 rounded-full"
@@ -62,14 +81,18 @@ export default function ThreeBackground({
   );
 }
 
+// Optimized MatrixRain with full cleanup on re-show
 function MatrixRain({ visible }: { visible: boolean }) {
-  useEffect(() => {
-    if (!visible) return;
+  const containerRef = useRef<HTMLDivElement>(null);
 
-    const container = document.getElementById("matrixRain");
+  useEffect(() => {
+    const container = containerRef.current;
     if (!container) return;
 
+    // Always clear before adding new
     container.innerHTML = "";
+
+    if (!visible) return;
 
     const chars =
       "01アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン";
@@ -85,11 +108,9 @@ function MatrixRain({ visible }: { visible: boolean }) {
     }
 
     return () => {
-      if (container) {
-        container.innerHTML = "";
-      }
+      container.innerHTML = "";
     };
   }, [visible]);
 
-  return <div className="matrix-rain" id="matrixRain" />;
+  return <div ref={containerRef} className="matrix-rain" id="matrixRain" />;
 }
